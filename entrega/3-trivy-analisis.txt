@@ -1,0 +1,425 @@
+
+Report Summary
+
+┌──────────────────────────────┬───────────┬───────────────────┐
+│            Target            │   Type    │ Misconfigurations │
+├──────────────────────────────┼───────────┼───────────────────┤
+│ bootstrap                    │ terraform │         0         │
+├──────────────────────────────┼───────────┼───────────────────┤
+│ bootstrap/main.tf            │ terraform │         1         │
+├──────────────────────────────┼───────────┼───────────────────┤
+│ envs/dev                     │ terraform │         0         │
+├──────────────────────────────┼───────────┼───────────────────┤
+│ envs/pro                     │ terraform │         0         │
+├──────────────────────────────┼───────────┼───────────────────┤
+│ extras/oidc                  │ terraform │         0         │
+├──────────────────────────────┼───────────┼───────────────────┤
+│ modules/logs/main.tf         │ terraform │         5         │
+├──────────────────────────────┼───────────┼───────────────────┤
+│ modules/red/main.tf          │ terraform │         3         │
+├──────────────────────────────┼───────────┼───────────────────┤
+│ modules/servidor_web/main.tf │ terraform │         9         │
+└──────────────────────────────┴───────────┴───────────────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+bootstrap/main.tf (terraform)
+=============================
+Tests: 1 (SUCCESSES: 0, FAILURES: 1)
+Failures: 1 (HIGH: 1, CRITICAL: 0)
+
+AWS-0132 (HIGH): Bucket does not encrypt data with a customer managed key.
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+Encryption using AWS keys provides protection for your S3 buckets. To gain greater control over encryption, such as key rotation, access policies, and auditability, use customer managed keys (CMKs) with SSE-KMS.
+Note that SSE-KMS is not supported for S3 server access logging destination buckets; in such cases, use SSE-S3 instead.
+
+
+See https://avd.aquasec.com/misconfig/aws-0132
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ bootstrap/main.tf:16-24
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  16 ┌ resource "aws_s3_bucket_server_side_encryption_configuration" "estado" {
+  17 │   bucket = aws_s3_bucket.estado.id
+  18 │ 
+  19 │   rule {
+  20 │     apply_server_side_encryption_by_default {
+  21 │       sse_algorithm = "AES256"
+  22 │     }
+  23 │   }
+  24 └ }
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+modules/logs/main.tf (terraform)
+================================
+Tests: 5 (SUCCESSES: 0, FAILURES: 5)
+Failures: 5 (HIGH: 5, CRITICAL: 0)
+
+AWS-0086 (HIGH): No public access block so not blocking public acls
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+S3 buckets should block public ACLs on buckets and any objects they contain. By blocking, PUTs with fail if the object has any public ACL a.
+
+
+See https://avd.aquasec.com/misconfig/aws-0086
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/logs/main.tf:3-6
+   via envs/pro/main.tf:43-46 (module.logs)
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   3 ┌ resource "aws_s3_bucket" "logs" {
+   4 │   bucket        = var.nombre
+   5 │   force_destroy = true
+   6 └ }
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+AWS-0087 (HIGH): No public access block so not blocking public policies
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+S3 bucket policy should have block public policy to prevent users from putting a policy that enable public access.
+
+
+See https://avd.aquasec.com/misconfig/aws-0087
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/logs/main.tf:3-6
+   via envs/pro/main.tf:43-46 (module.logs)
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   3 ┌ resource "aws_s3_bucket" "logs" {
+   4 │   bucket        = var.nombre
+   5 │   force_destroy = true
+   6 └ }
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+AWS-0091 (HIGH): No public access block so not blocking public acls
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+S3 buckets should ignore public ACLs on buckets and any objects they contain. By ignoring rather than blocking, PUT calls with public ACLs will still be applied but the ACL will be ignored.
+
+
+See https://avd.aquasec.com/misconfig/aws-0091
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/logs/main.tf:3-6
+   via envs/pro/main.tf:43-46 (module.logs)
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   3 ┌ resource "aws_s3_bucket" "logs" {
+   4 │   bucket        = var.nombre
+   5 │   force_destroy = true
+   6 └ }
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+AWS-0093 (HIGH): No public access block so not restricting public buckets
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+S3 buckets should restrict public policies for the bucket. By enabling, the restrict_public_buckets, only the bucket owner and AWS Services can access if it has a public policy.
+
+
+See https://avd.aquasec.com/misconfig/aws-0093
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/logs/main.tf:3-6
+   via envs/pro/main.tf:43-46 (module.logs)
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   3 ┌ resource "aws_s3_bucket" "logs" {
+   4 │   bucket        = var.nombre
+   5 │   force_destroy = true
+   6 └ }
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+AWS-0132 (HIGH): Bucket does not encrypt data with a customer managed key.
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+Encryption using AWS keys provides protection for your S3 buckets. To gain greater control over encryption, such as key rotation, access policies, and auditability, use customer managed keys (CMKs) with SSE-KMS.
+Note that SSE-KMS is not supported for S3 server access logging destination buckets; in such cases, use SSE-S3 instead.
+
+
+See https://avd.aquasec.com/misconfig/aws-0132
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/logs/main.tf:3-6
+   via envs/pro/main.tf:43-46 (module.logs)
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   3 ┌ resource "aws_s3_bucket" "logs" {
+   4 │   bucket        = var.nombre
+   5 │   force_destroy = true
+   6 └ }
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+modules/red/main.tf (terraform)
+===============================
+Tests: 3 (SUCCESSES: 0, FAILURES: 3)
+Failures: 3 (HIGH: 3, CRITICAL: 0)
+
+AWS-0164 (HIGH): Subnet associates public IP address.
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+You should limit the provision of public IP addresses for resources. Resources should not be exposed on the public internet, but should have access limited to consumers required for the function of your application.
+
+
+See https://avd.aquasec.com/misconfig/aws-0164
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/red/main.tf:19
+   via modules/red/main.tf:13-24 (aws_subnet.publica[0])
+    via envs/dev/main.tf:16-22 (module.red)
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  13   resource "aws_subnet" "publica" {
+  ..   
+  19 [   map_public_ip_on_launch = true
+  ..   
+  24   }
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+AWS-0164 (HIGH): Subnet associates public IP address.
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+You should limit the provision of public IP addresses for resources. Resources should not be exposed on the public internet, but should have access limited to consumers required for the function of your application.
+
+
+See https://avd.aquasec.com/misconfig/aws-0164
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/red/main.tf:19
+   via modules/red/main.tf:13-24 (aws_subnet.publica[0])
+    via envs/pro/main.tf:19-25 (module.red)
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  13   resource "aws_subnet" "publica" {
+  ..   
+  19 [   map_public_ip_on_launch = true
+  ..   
+  24   }
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+AWS-0164 (HIGH): Subnet associates public IP address.
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+You should limit the provision of public IP addresses for resources. Resources should not be exposed on the public internet, but should have access limited to consumers required for the function of your application.
+
+
+See https://avd.aquasec.com/misconfig/aws-0164
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/red/main.tf:19
+   via modules/red/main.tf:13-24 (aws_subnet.publica[1])
+    via envs/pro/main.tf:19-25 (module.red)
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  13   resource "aws_subnet" "publica" {
+  ..   
+  19 [   map_public_ip_on_launch = true
+  ..   
+  24   }
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+modules/servidor_web/main.tf (terraform)
+========================================
+Tests: 9 (SUCCESSES: 0, FAILURES: 9)
+Failures: 9 (HIGH: 6, CRITICAL: 3)
+
+AWS-0028 (HIGH): Instance does not require IMDS access to require a token.
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+IMDS v2 (Instance Metadata Service) introduced session authentication tokens which improve security when talking to IMDS.
+
+By default <code>aws_instance</code> resource sets IMDS session auth tokens to be optional.
+
+To fully protect IMDS you need to enable session tokens by using <code>metadata_options</code> block and its <code>http_tokens</code> variable set to <code>required</code>.
+
+
+See https://avd.aquasec.com/misconfig/aws-0028
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/servidor_web/main.tf:46-65
+   via envs/dev/main.tf:24-35 (module.web["a"])
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  46 ┌ resource "aws_instance" "web" {
+  47 │   ami                         = local.ami
+  48 │   instance_type               = var.tipo_instancia
+  49 │   subnet_id                   = var.subred_id
+  50 │   vpc_security_group_ids      = [aws_security_group.web.id]
+  51 │   user_data_replace_on_change = true
+  52 │ 
+  53 │ 
+  54 └   user_data = <<-EOT
+  ..   
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+AWS-0028 (HIGH): Instance does not require IMDS access to require a token.
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+IMDS v2 (Instance Metadata Service) introduced session authentication tokens which improve security when talking to IMDS.
+
+By default <code>aws_instance</code> resource sets IMDS session auth tokens to be optional.
+
+To fully protect IMDS you need to enable session tokens by using <code>metadata_options</code> block and its <code>http_tokens</code> variable set to <code>required</code>.
+
+
+See https://avd.aquasec.com/misconfig/aws-0028
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/servidor_web/main.tf:46-65
+   via envs/pro/main.tf:27-38 (module.web["a"])
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  46 ┌ resource "aws_instance" "web" {
+  47 │   ami                         = local.ami
+  48 │   instance_type               = var.tipo_instancia
+  49 │   subnet_id                   = var.subred_id
+  50 │   vpc_security_group_ids      = [aws_security_group.web.id]
+  51 │   user_data_replace_on_change = true
+  52 │ 
+  53 │ 
+  54 └   user_data = <<-EOT
+  ..   
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+AWS-0028 (HIGH): Instance does not require IMDS access to require a token.
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+IMDS v2 (Instance Metadata Service) introduced session authentication tokens which improve security when talking to IMDS.
+
+By default <code>aws_instance</code> resource sets IMDS session auth tokens to be optional.
+
+To fully protect IMDS you need to enable session tokens by using <code>metadata_options</code> block and its <code>http_tokens</code> variable set to <code>required</code>.
+
+
+See https://avd.aquasec.com/misconfig/aws-0028
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/servidor_web/main.tf:46-65
+   via envs/pro/main.tf:27-38 (module.web["b"])
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  46 ┌ resource "aws_instance" "web" {
+  47 │   ami                         = local.ami
+  48 │   instance_type               = var.tipo_instancia
+  49 │   subnet_id                   = var.subred_id
+  50 │   vpc_security_group_ids      = [aws_security_group.web.id]
+  51 │   user_data_replace_on_change = true
+  52 │ 
+  53 │ 
+  54 └   user_data = <<-EOT
+  ..   
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+AWS-0104 (CRITICAL): Security group rule allows unrestricted egress to any IP address.
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+Opening up ports to connect out to the public internet is generally to be avoided. You should restrict access to IP addresses or ranges that are explicitly required where possible.
+
+
+See https://avd.aquasec.com/misconfig/aws-0104
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/servidor_web/main.tf:42
+   via modules/servidor_web/main.tf:39-44 (aws_vpc_security_group_egress_rule.todo)
+    via envs/dev/main.tf:24-35 (module.web["a"])
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  39   resource "aws_vpc_security_group_egress_rule" "todo" {
+  40     security_group_id = aws_security_group.web.id
+  41     description       = "Salida a Internet (actualizaciones e instalacion de paquetes)"
+  42 [   cidr_ipv4         = "0.0.0.0/0"
+  43     ip_protocol       = "-1"
+  44   }
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+AWS-0104 (CRITICAL): Security group rule allows unrestricted egress to any IP address.
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+Opening up ports to connect out to the public internet is generally to be avoided. You should restrict access to IP addresses or ranges that are explicitly required where possible.
+
+
+See https://avd.aquasec.com/misconfig/aws-0104
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/servidor_web/main.tf:42
+   via modules/servidor_web/main.tf:39-44 (aws_vpc_security_group_egress_rule.todo)
+    via envs/pro/main.tf:27-38 (module.web["a"])
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  39   resource "aws_vpc_security_group_egress_rule" "todo" {
+  40     security_group_id = aws_security_group.web.id
+  41     description       = "Salida a Internet (actualizaciones e instalacion de paquetes)"
+  42 [   cidr_ipv4         = "0.0.0.0/0"
+  43     ip_protocol       = "-1"
+  44   }
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+AWS-0104 (CRITICAL): Security group rule allows unrestricted egress to any IP address.
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+Opening up ports to connect out to the public internet is generally to be avoided. You should restrict access to IP addresses or ranges that are explicitly required where possible.
+
+
+See https://avd.aquasec.com/misconfig/aws-0104
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/servidor_web/main.tf:42
+   via modules/servidor_web/main.tf:39-44 (aws_vpc_security_group_egress_rule.todo)
+    via envs/pro/main.tf:27-38 (module.web["b"])
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  39   resource "aws_vpc_security_group_egress_rule" "todo" {
+  40     security_group_id = aws_security_group.web.id
+  41     description       = "Salida a Internet (actualizaciones e instalacion de paquetes)"
+  42 [   cidr_ipv4         = "0.0.0.0/0"
+  43     ip_protocol       = "-1"
+  44   }
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+AWS-0131 (HIGH): Root block device is not encrypted.
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+Block devices should be encrypted to ensure sensitive data is held securely at rest.
+
+
+See https://avd.aquasec.com/misconfig/aws-0131
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/servidor_web/main.tf:46-65
+   via envs/dev/main.tf:24-35 (module.web["a"])
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  46 ┌ resource "aws_instance" "web" {
+  47 │   ami                         = local.ami
+  48 │   instance_type               = var.tipo_instancia
+  49 │   subnet_id                   = var.subred_id
+  50 │   vpc_security_group_ids      = [aws_security_group.web.id]
+  51 │   user_data_replace_on_change = true
+  52 │ 
+  53 │ 
+  54 └   user_data = <<-EOT
+  ..   
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+AWS-0131 (HIGH): Root block device is not encrypted.
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+Block devices should be encrypted to ensure sensitive data is held securely at rest.
+
+
+See https://avd.aquasec.com/misconfig/aws-0131
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/servidor_web/main.tf:46-65
+   via envs/pro/main.tf:27-38 (module.web["a"])
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  46 ┌ resource "aws_instance" "web" {
+  47 │   ami                         = local.ami
+  48 │   instance_type               = var.tipo_instancia
+  49 │   subnet_id                   = var.subred_id
+  50 │   vpc_security_group_ids      = [aws_security_group.web.id]
+  51 │   user_data_replace_on_change = true
+  52 │ 
+  53 │ 
+  54 └   user_data = <<-EOT
+  ..   
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+AWS-0131 (HIGH): Root block device is not encrypted.
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+Block devices should be encrypted to ensure sensitive data is held securely at rest.
+
+
+See https://avd.aquasec.com/misconfig/aws-0131
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ modules/servidor_web/main.tf:46-65
+   via envs/pro/main.tf:27-38 (module.web["b"])
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  46 ┌ resource "aws_instance" "web" {
+  47 │   ami                         = local.ami
+  48 │   instance_type               = var.tipo_instancia
+  49 │   subnet_id                   = var.subred_id
+  50 │   vpc_security_group_ids      = [aws_security_group.web.id]
+  51 │   user_data_replace_on_change = true
+  52 │ 
+  53 │ 
+  54 └   user_data = <<-EOT
+  ..   
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+

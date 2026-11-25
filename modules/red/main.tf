@@ -10,6 +10,10 @@ resource "aws_vpc" "principal" {
   }
 }
 
+# Excepción justificada: los servidores web
+# son públicos (no hay balanceador), así que
+# sus subredes asignan IP pública.
+#trivy:ignore:AWS-0164
 resource "aws_subnet" "publica" {
   count = length(var.zonas)
 
