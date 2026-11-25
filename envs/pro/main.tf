@@ -6,18 +6,18 @@
 locals {
   entorno     = "pro"
   nombre_base = "${var.prefijo}-${local.entorno}"
-  zonas       = ___
+  zonas       = ["eu-west-1a", "eu-west-1b"]
 
   servidores = {
-    a = ___
-    b = ___
+    a = { mensaje = "Producción · servidor A"}
+    b = { mensaje = "Producción · servidor B"}
   }
 
   subred_de = { for i, k in keys(local.servidores) : k => i % length(local.zonas) }
 }
 
 module "red" {
-  source = ___
+  source = "../../modules/red"
 
   nombre   = local.nombre_base
   vpc_cidr = "10.0.0.0/16"
@@ -25,13 +25,13 @@ module "red" {
 }
 
 module "web" {
-  source   = ___
-  for_each = ___
+  source   = "../../modules/servidor_web"
+  for_each = local.servidores
 
   nombre    = "${local.nombre_base}-${each.key}"
   vpc_id    = module.red.vpc_id
   subred_id = module.red.subred_publica_ids[local.subred_de[each.key]]
-  mensaje   = ___
+  mensaje   = each.value.mensaje
   ami_id    = var.ami_id
 
   depends_on = [module.red]
@@ -39,3 +39,8 @@ module "web" {
 
 # Bucket de logs: escribe aquí la llamada al módulo logs
 # (source "../../modules/logs" y nombre "${local.nombre_base}-logs")
+
+module "logs" {
+  source = "../../modules/logs"
+  nombre = "${local.nombre_base}-logs"
+}
