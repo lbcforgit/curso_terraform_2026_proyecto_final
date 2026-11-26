@@ -6,17 +6,17 @@ Plantilla del proyecto final. Partes de la red y los servidores de los módulos 
 
 ## Lista de comprobación
 
-- [ ] `envs/pro` completado (dos zonas, dos servidores y el bucket de logs)
-- [ ] Trivy sin hallazgos HIGH o CRITICAL: corrigiendo o justificando cada uno
-- [ ] IMDSv2 y disco cifrado en `modules/servidor_web`
-- [ ] Bucket de logs cifrado y sin acceso público en `modules/logs`
-- [ ] `.github/workflows/ci.yml` completado
-- [ ] CI en verde (en GitHub o con `./scripts/ci.sh`)
-- [ ] Despliegue de prueba correcto (en GitHub o con `./scripts/despliegue-prueba.sh`)
-- [ ] `dev` y `pro` desplegados en AWS o en Floci
-- [ ] `DOCUMENTACION.md` completado
+- [X] `envs/pro` completado (dos zonas, dos servidores y el bucket de logs)
+- [X] Trivy sin hallazgos HIGH o CRITICAL: corrigiendo o justificando cada uno
+- [X] IMDSv2 y disco cifrado en `modules/servidor_web`
+- [X] Bucket de logs cifrado y sin acceso público en `modules/logs`
+- [X] `.github/workflows/ci.yml` completado
+- [X] CI en verde (en GitHub o con `./scripts/ci.sh`)
+- [X] Despliegue de prueba correcto (en GitHub o con `./scripts/despliegue-prueba.sh`)
+- [X] `dev` y `pro` desplegados en AWS o en Floci
+- [X] `DOCUMENTACION.md` completado
 - [ ] `entrega.zip` generado con `./scripts/empaquetar.sh`
-- [ ] Todo destruido al terminar
+- [X] Todo destruido al terminar
 
 ## Estructura
 
