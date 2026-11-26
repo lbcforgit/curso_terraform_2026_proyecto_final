@@ -7,7 +7,7 @@ Sube en esta tarea:
    1. [X] El *bucket del estado* (consola de S3 o Floci UI).
    2. [X] El primer análisis de **Trivy**, con los hallazgos HIGH y CRITICAL.
    3. [X] Trivy sin hallazgos HIGH ni CRITICAL, tras corregir o justificar.
-   4. [ ] El *CI en verde*: la pestaña Actions de GitHub, o `./scripts/ci.sh` terminando sin errores.
+   4. [X] El *CI en verde*: la pestaña Actions de GitHub, o `./scripts/ci.sh` terminando sin errores.
    5. [ ] El **registro del despliegue** de prueba, con las instancias creadas y la destrucción final.
    6. [ ] Las **instancias** de `dev` y `pro` desplegadas (consola de EC2 o Floci UI).
    7. [ ] Solo con AWS: una página de producción en el navegador.

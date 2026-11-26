@@ -4,8 +4,8 @@ name: CI
 
 # Completa: debe ejecutarse en cada push y en cada pull request
 on:
-  ___:
-  ___:
+  push:
+  pull_request:
 
 permissions:
   contents: read
@@ -23,6 +23,6 @@ jobs:
           terraform_wrapper: false
 
       - name: Comprobaciones de calidad y seguridad
-        run: ___ # el script de CI del proyecto
+        run: ./scripts/ci.sh # el script de CI del proyecto
         env:
           GITHUB_TOKEN: ${{ github.token }} # para que TFLint descargue su plugin sin límites

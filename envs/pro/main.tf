@@ -9,8 +9,8 @@ locals {
   zonas       = ["eu-west-1a", "eu-west-1b"]
 
   servidores = {
-    a = { mensaje = "Producción · servidor A"}
-    b = { mensaje = "Producción · servidor B"}
+    a = { mensaje = "Producción · servidor A" }
+    b = { mensaje = "Producción · servidor B" }
   }
 
   subred_de = { for i, k in keys(local.servidores) : k => i % length(local.zonas) }
