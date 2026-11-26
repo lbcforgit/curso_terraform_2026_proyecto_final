@@ -1,7 +1,5 @@
 # Tarea 6.1 · Proyecto final
 
-Sube en esta tarea:
-
 1. **`entrega.zip`**, generado con `./scripts/empaquetar.sh`. Incluye todo tu proyecto y `DOCUMENTACION.md` completo.
 2. **Las capturas de los pasos 2 a 7:**
    1. [X] El *bucket del estado* (consola de S3 o Floci UI).
